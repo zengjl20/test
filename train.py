@@ -44,7 +44,7 @@ def train_epoch(train_loader, model, optimizer, scheduler, epoch):
     model.train()
     # step number in one epoch: 336
     train_losses = 0
-    fgm = FGM(model.bert, emb_name="word_embeddings.", epsilon=1.0e-3)
+    #fgm = FGM(model.bert, emb_name="word_embeddings.", epsilon=1.0e-3)
     for idx, batch_samples in enumerate(tqdm(train_loader)):
         batch_data, batch_token_starts, batch_labels = batch_samples
         batch_masks = batch_data.gt(0)  # get padding mask
@@ -57,11 +57,13 @@ def train_epoch(train_loader, model, optimizer, scheduler, epoch):
         loss.backward()
         # gradient clipping
         nn.utils.clip_grad_norm_(parameters=model.parameters(), max_norm=config.clip_grad)
+        '''
         fgm.attack()
         loss_adv = model((batch_data, batch_token_starts),
                      token_type_ids=None, attention_mask=batch_masks, labels=batch_labels)[0]
         loss_adv.backward()
         fgm.restore()
+        '''
         # performs updates using calculated gradients
         optimizer.step()
         scheduler.step()
